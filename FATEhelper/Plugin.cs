@@ -31,7 +31,6 @@ public sealed class Plugin : IDalamudPlugin
     private ConfigWindow ConfigWindow { get; init; }
     private MainWindow MainWindow { get; init; }
     private FateHelper FateHelper { get; init; }
-    private AutoSync AutoSync { get; init; }
     
     public Plugin()
     {
@@ -40,13 +39,10 @@ public sealed class Plugin : IDalamudPlugin
         ConfigWindow = new ConfigWindow(this);
         MainWindow = new MainWindow(this);
         FateHelper = new FateHelper(this);
-        AutoSync = new AutoSync(this);
         
         WindowSystem.AddWindow(ConfigWindow);
         WindowSystem.AddWindow(MainWindow);
-
-        Framework.Update += FrameTick;
-
+        
         CommandManager.AddHandler(CommandMain, new CommandInfo(OnCommand)
         {
             HelpMessage = "Toggle FATE list."
@@ -76,7 +72,6 @@ public sealed class Plugin : IDalamudPlugin
         CommandManager.RemoveHandler(CommandMain);
         CommandManager.RemoveHandler(CommandConfig);
         
-        Framework.Update -= FrameTick;
     }
     
     // get and return fate info to update main window
@@ -102,9 +97,6 @@ public sealed class Plugin : IDalamudPlugin
         var flag = new Flagging(this, location, ClientState.LocalPlayer.Position);
         return flag.GetClosestName();
     }
-    
-    // auto-sync if targeting a fate enemy, auto-enable tank stance for tanks
-    internal void FrameTick(IFramework framework) => AutoSync.LevelSync();
 
     private void OnCommand(string command, string args)
     {

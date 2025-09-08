@@ -34,21 +34,6 @@ public class ConfigWindow : Window, IDisposable
             if (ImGui.BeginTabItem("Configuration"))
             {
                 ImGui.Dummy(new Vector2(0,5));
-                var tankStance = Configuration.AutoSyncTankStance;
-                if (ImGui.Checkbox("Enable Tank Stance along with automatic level sync", ref tankStance))
-                {
-                    Configuration.AutoSyncTankStance = tankStance;
-                    Configuration.Save();
-                }
-                var forlorn = Configuration.TargetForlorn;
-                if (ImGui.Checkbox("Automatically target Forlorns when they spawn", ref forlorn))
-                {
-                    Configuration.TargetForlorn = forlorn;
-                    Configuration.Save();
-                }
-                if(ImGui.IsItemHovered())
-                    ImGui.SetTooltip("You will be unable to target a different FATE enemy as long as a Forlorn is up."); 
-                ImGui.Dummy(new Vector2(0,10));
                 int font = Configuration.FontSize;
                 ImGui.TextUnformatted("FATE Window Text Size");
                 if(ImGui.IsItemHovered())
@@ -161,14 +146,6 @@ public class ConfigWindow : Window, IDisposable
                 ImGui.Dummy(new Vector2(0,20));
                 ImGui.TextUnformatted("I turned on the aetheryte name setting, why do some FATEs not have it?");
                 ImGui.TextUnformatted("Same as above, it won't show if flying is faster. This is also why the name will go away when you get close enough to the FATE.");
-                ImGui.Dummy(new Vector2(0,20));
-                ImGui.TextUnformatted("Why can't I turn off level sync?");
-                ImGui.TextUnformatted("The level sync detection is based on your current target. Unfocus what you're targeted on, and then you can turn off level sync.\n"+
-                                      "As usual, you can also run outside of the FATE radius to turn it off.");
-                ImGui.Dummy(new Vector2(0,20));
-                ImGui.TextUnformatted("What about rare boss / field operation FATEs?");
-                ImGui.TextUnformatted("Automatic level sync will not work when the initial FATE duration is over 15 minutes, even when the time remaining on the FATE\n" +
-                                      "goes under 15 minutes. This is to prevent accidentally pulling the boss early.");
                 ImGui.EndTabItem();
             }
             ImGui.EndTabBar();

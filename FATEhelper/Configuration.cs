@@ -20,8 +20,6 @@ public class Configuration : IPluginConfiguration
     public bool OpenMapWithFlag { get; set; } = false;
     public bool TeleportWithFlag { get; set; } = true;
     public bool ShowAetheryteName { get; set; } = false;
-    public bool TargetForlorn { get; set; } = true;
-    public bool AutoSyncTankStance { get; set; } = true;
 
     // The below exist just to make saving less cumbersome
     public void Save()
