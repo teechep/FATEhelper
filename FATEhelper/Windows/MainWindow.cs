@@ -15,9 +15,7 @@ public class MainWindow : Window, IDisposable
     private float fontSize;
     private float timerWidth;
     private float progressWidth;
-
-    // test if the fate info is still being grabbed, because the Update function fires every game frame
-    private bool CanDraw = true;
+    
     
     public MainWindow(Plugin plugin)
         : base("FATE Helper##FATEhelper90210", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
@@ -66,10 +64,8 @@ public class MainWindow : Window, IDisposable
     // draw the icons slightly higher so they align with the text
     private void DrawIcon(uint iconId,float scale = 1.4f)
     {
-        Plugin.Log.Debug(""+iconId);
         var pos = ImGui.GetCursorPos();
         pos.Y -= fontSize*0.2f;
-        Plugin.Log.Debug(pos.ToString());
         ImGui.SetCursorPos(pos);
         var icon = Plugin.TextureProvider.GetFromGameIcon(new GameIconLookup(iconId)).GetWrapOrDefault();
         if (icon != null)
@@ -98,131 +94,132 @@ public class MainWindow : Window, IDisposable
     public void FateWindow()
     {
         fontSize = ImGui.GetFontSize();
-        if (CanDraw)
+        // get new fate info
+        Info = Plugin.ReturnFateInfo(); 
+        if (Configuration.FontSize == 0)
+            ImGui.SetWindowFontScale(0.7f);
+        else if (Configuration.FontSize == 2)
+            ImGui.SetWindowFontScale(1.4f);
+        else
+            ImGui.SetWindowFontScale(1);
+        GetWidths(Info);
+        if (Info.Count > 0)
         {
-            CanDraw = false;
-            // get new fate info
-            Info = Plugin.ReturnFateInfo();
-            if (Configuration.FontSize == 0)
-                ImGui.SetWindowFontScale(0.7f);
-            else if (Configuration.FontSize == 2)
-                ImGui.SetWindowFontScale(1.4f);
+            // larger gap for non-name flag buttons to move up so that text is centered
+            if(!Configuration.ShowFateNames)
+                ImGui.PushStyleVar(ImGuiStyleVar.CellPadding,new Vector2(4,10));
             else
-                ImGui.SetWindowFontScale(1);
-            GetWidths(Info);
-            if (Info.Count > 0)
+                ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(4, 5));
+            if (ImGui.BeginTable("fatetable", 4))
             {
-                // larger gap for non-name flag buttons to move up so that text is centered
-                if(!Configuration.ShowFateNames)
-                    ImGui.PushStyleVar(ImGuiStyleVar.CellPadding,new Vector2(4,10));
-                else
-                    ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(4, 5));
-                if (ImGui.BeginTable("fatetable", 4))
+                ImGui.TableSetupColumn("icon");
+                if (Configuration.ShowFateNames)
+                    ImGui.TableSetupColumn("name");
+                ImGui.TableSetupColumn("time");
+                ImGui.TableSetupColumn("progress");
+                if (!Configuration.ShowFateNames)
+                    ImGui.TableSetupColumn("flag");
+                int limit = Configuration.LimitDisplay ? Configuration.Limit + 2 : Info.Count;
+                if (limit > Info.Count)
+                    limit = Info.Count;
+                for (var it = 0; it < limit; it++)
                 {
-                    ImGui.TableSetupColumn("icon");
-                    if(Configuration.ShowFateNames)
-                      ImGui.TableSetupColumn("name");
-                    ImGui.TableSetupColumn("time");
-                    ImGui.TableSetupColumn("progress");
-                    if(!Configuration.ShowFateNames)
-                        ImGui.TableSetupColumn("flag");
-                    int limit = Configuration.LimitDisplay ? Configuration.Limit+2 : Info.Count;
-                    if(limit > Info.Count)
-                        limit = Info.Count;
-                    for(var it = 0; it < limit; it++)
+                    var i = Info[it];
+                    ImGui.TableNextColumn();
+                    DrawIcon(i.IconId);
+                    if (i.IsBonus)
                     {
-                        var i = Info[it];
-                        ImGui.TableNextColumn();
-                        DrawIcon(i.IconId);
-                        if (i.IsBonus)
+                        var pos = ImGui.GetCursorPos();
+                        pos.X += (fontSize * 0.4f);
+                        pos.Y -= (fontSize * 1.7f);
+                        ImGui.SetCursorPos(pos);
+                        ImGui.SetItemAllowOverlap();
+                        DrawIcon(60934, 1.6f);
+                    }
+
+                    ImGui.TableNextColumn();
+                    // fate name with closest aetheryte name
+                    if (Configuration.ShowFateNames)
+                    {
+                        string suffix = "";
+                        if (Configuration.ShowAetheryteName)
                         {
-                            var pos = ImGui.GetCursorPos();
-                            pos.X += (fontSize * 0.4f);
-                            pos.Y -= (fontSize * 1.7f);
-                            ImGui.SetCursorPos(pos);
-                            ImGui.SetItemAllowOverlap();
-                            DrawIcon(60934,1.6f);
+                            var closestAetheryte = Plugin.ClosestAetheryte(i.Position);
+                            if (!string.IsNullOrEmpty(closestAetheryte))
+                                suffix += " (" + closestAetheryte + ")";
                         }
-                        ImGui.TableNextColumn();
-                        // fate name with closest aetheryte name
-                        if (Configuration.ShowFateNames)
+
+                        if (ImGui.Selectable($"{i.Name}{suffix}"))
                         {
-                            string suffix = "";
-                            if (Configuration.ShowAetheryteName)
-                            {
-                                var closestAetheryte = Plugin.ClosestAetheryte(i.Position);
-                                if(!string.IsNullOrEmpty(closestAetheryte))
-                                    suffix += " ("+closestAetheryte + ")";
-                            }
-                            if (ImGui.Selectable($"{i.Name}{suffix}"))
+                            Plugin.FateFlag(i.Position);
+                        }
+
+                        ImGui.TableNextColumn();
+                    }
+
+                    // time remaining
+                    AlignRight(GetTimer(i.TimeRemaining, i.NotStarted), "timer");
+                    ImGui.TableNextColumn();
+                    // progress
+                    AlignRight(i.Progress + "%", "progress");
+                    if (i.CollectCount > 0)
+                    {
+                        ImGui.SameLine();
+                        if (i.CollectCount != 9999)
+                        {
+                            ImGui.TextUnformatted($"({i.CollectCount})");
+                            ImGui.SameLine();
+                        }
+
+                        // I'm fairly sure all the turn-in fates are 6 items for full credit but lmk if that's wrong
+                        DrawIcon((uint)(i.CollectCount < 6 ? 61502 : 60081));
+                    }
+
+                    // show flag button if not showing fate name
+                    if (!Configuration.ShowFateNames)
+                    {
+                        var flag = Plugin.TextureProvider.GetFromGameIcon(new GameIconLookup(60561));
+                        if (flag.TryGetWrap(out var flagWrap, out _))
+                        {
+                            ImGui.TableNextColumn();
+                            var cursor = ImGui.GetCursorPosY();
+                            cursor -= fontSize * 0.4f;
+                            ImGui.SetCursorPosY(cursor);
+                            // interactive elements need unique id, button text label would normally provide it
+                            ImGui.PushID($"button{it}");
+                            if (ImGui.ImageButton(flagWrap.Handle, new Vector2(fontSize * 1.4f, fontSize * 1.4f)))
                             {
                                 Plugin.FateFlag(i.Position);
                             }
-                            ImGui.TableNextColumn();
-                        }
-                        // time remaining
-                        AlignRight(GetTimer(i.TimeRemaining,i.NotStarted),"timer");
-                        ImGui.TableNextColumn();
-                        // progress
-                        AlignRight(i.Progress+"%","progress");
-                        if (i.CollectCount > 0)
-                        {
-                            ImGui.SameLine();
-                            if (i.CollectCount != 9999)
-                            {
-                                ImGui.TextUnformatted($"({i.CollectCount})");
-                                ImGui.SameLine();
-                            }
-                            // I'm fairly sure all the turn-in fates are 6 items for full credit but lmk if that's wrong
-                            DrawIcon((uint)(i.CollectCount < 6 ? 61502 : 60081));
-                        }
-                        // show flag button if not showing fate name
-                        if (!Configuration.ShowFateNames)
-                        {
-                            var flag = Plugin.TextureProvider.GetFromGameIcon(new GameIconLookup(60561));
-                            if (flag.TryGetWrap(out var flagWrap,out _))
-                            {
-                                ImGui.TableNextColumn();
-                                var cursor = ImGui.GetCursorPosY();
-                                cursor -= fontSize * 0.4f;
-                                ImGui.SetCursorPosY(cursor);
-                                // interactive elements need unique id, button text label would normally provide it
-                                ImGui.PushID($"button{it}");
-                                if (ImGui.ImageButton(flagWrap.Handle, new Vector2(fontSize * 1.4f, fontSize * 1.4f)))
-                                {
-                                    Plugin.FateFlag(i.Position);
-                                }
-                                ImGui.PopID();
-                            }
+
+                            ImGui.PopID();
                         }
                     }
-                    ImGui.EndTable();
                 }
-                ImGui.PopStyleVar();
+                ImGui.EndTable();
             }
-            else
-            {
-                ImGui.TextUnformatted("No active FATEs.");
-                if (Configuration.ShowCurrency)
-                    ImGui.Dummy(new Vector2(0,10));
-            }
-            if (Configuration.ShowCurrency && Plugin.ClientState.IsLoggedIn)
-            {
-                // pre vs post shadowbringers areas, I'm pretty sure lakeland is first with an 813 id
-                // 65004 is maelstrom, 65005 adder, 65006 flames, same order of 1/2/3 for the grand company
-                int iconId = Plugin.ClientState.TerritoryType < 813 ? (FateHelper.GrandCompany + 65003) : 65071;
-                DrawIcon((uint)iconId);
-                ImGui.SameLine();
-                // move text down a little to center with icon
-                var pos = ImGui.GetCursorPosY();
-                pos += (fontSize * 0.2f);
-                ImGui.SetCursorPosY(pos);
-                ImGui.TextUnformatted($"{FateHelper.FateCurrency}");
-            }
-            CanDraw = true;
+            ImGui.PopStyleVar();
+        }
+        else
+        {
+            ImGui.TextUnformatted("No active FATEs.");
+            if (Configuration.ShowCurrency)
+                ImGui.Dummy(new Vector2(0,10));
+        }
+        if (Configuration.ShowCurrency && Plugin.ClientState.IsLoggedIn)
+        {
+            // pre vs post shadowbringers areas, I'm pretty sure lakeland is first with an 813 id
+            // 65004 is maelstrom, 65005 adder, 65006 flames, same order of 1/2/3 for the grand company
+            int iconId = Plugin.ClientState.TerritoryType < 813 ? (FateHelper.GrandCompany + 65003) : 65071;
+            DrawIcon((uint)iconId);
+            ImGui.SameLine();
+            // move text down a little to center with icon
+            var pos = ImGui.GetCursorPosY();
+            pos += (fontSize * 0.2f);
+            ImGui.SetCursorPosY(pos);
+            ImGui.TextUnformatted($"{FateHelper.FateCurrency}");
         }
     }
 
     public override void Draw() => FateWindow();
-    public override void Update() => FateWindow();
 }
