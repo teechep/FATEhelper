@@ -19,11 +19,8 @@ public class MainWindow : Window, IDisposable
     // test if the fate info is still being grabbed, because the Update function fires every game frame
     private bool CanDraw = true;
     
-    // We give this window a hidden ID using ##.
-    // The user will see "My Amazing Window" as window title,
-    // but for ImGui the ID is "My Amazing Window##With a hidden ID"
     public MainWindow(Plugin plugin)
-        : base("FATE Helper##With a hidden ID", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
+        : base("FATE Helper##FATEhelper90210", ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize)
     {
         SizeConstraints = new WindowSizeConstraints
         {

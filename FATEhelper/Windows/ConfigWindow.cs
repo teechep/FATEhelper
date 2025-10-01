@@ -8,11 +8,8 @@ namespace FATEhelper.Windows;
 public class ConfigWindow : Window, IDisposable
 {
     private Configuration Configuration;
-
-    // We give this window a constant ID using ###.
-    // This allows for labels to be dynamic, like "{FPS Counter}fps###XYZ counter window",
-    // and the window ID will always be "###XYZ counter window" for ImGui
-    public ConfigWindow(Plugin plugin) : base("FATE Helper Config###With a constant ID")
+    
+    public ConfigWindow(Plugin plugin) : base("FATE Helper Config###FATEconfig90210")
     {
         Flags = ImGuiWindowFlags.NoScrollbar | ImGuiWindowFlags.NoScrollWithMouse | ImGuiWindowFlags.AlwaysAutoResize;
 

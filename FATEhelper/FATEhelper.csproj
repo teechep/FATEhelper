@@ -2,16 +2,9 @@
 <Project Sdk="Dalamud.NET.Sdk/13.0.0">
   <PropertyGroup>
     <Version>0.0.0.1</Version>
-    <Description>A sample plugin.</Description>
-    <PackageProjectUrl>https://github.com/goatcorp/SamplePlugin</PackageProjectUrl>
+    <Description>Shows a list of active FATEs with option for flagging and teleporting.</Description>
+    <PackageProjectUrl>https://github.com/teechep/FATEhelper</PackageProjectUrl>
     <PackageLicenseExpression>AGPL-3.0-or-later</PackageLicenseExpression>
     <IsPackable>false</IsPackable>
   </PropertyGroup>
-
-  <ItemGroup>
-    <Content Include="..\Data\goat.png">
-      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
-      <Visible>false</Visible>
-    </Content>
-  </ItemGroup>
 </Project>
