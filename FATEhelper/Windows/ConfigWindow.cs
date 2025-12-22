@@ -115,6 +115,12 @@ public class ConfigWindow : Window, IDisposable
                  }
                  if(ImGui.IsItemHovered())
                      ImGui.SetTooltip("This will also only show the aetheryte if teleporting is faster than flying.");
+                 var compass = Configuration.ShowCompass;
+                 if (ImGui.Checkbox("Show direction of FATE from current position", ref compass))
+                 {
+                     Configuration.ShowCompass = compass;
+                     Configuration.Save();
+                 }
                  ImGui.EndTabItem();
             }
             if (ImGui.BeginTabItem("FAQ"))
@@ -138,8 +144,8 @@ public class ConfigWindow : Window, IDisposable
                                       "correlation between NPC and FATE, so I decided it wasn't worth the extra programming expense to get the NPC information.");
                 ImGui.Dummy(new Vector2(0,20));
                 ImGui.TextUnformatted("Why does the automatic teleport not work sometimes?");
-                ImGui.TextUnformatted("You will not teleport if you could fly to the FATE faster. If you haven't unlocked flying in that area yet, teleporting could be\n" +
-                                      "faster. But in that case, please, for your own sanity, spend your time unlocking flying first.");
+                ImGui.TextUnformatted("You will not teleport if you could fly to the FATE faster. This is calculated as a flat, straight line distance, so it may be inaccurate\n" +
+                                      "in some cases. Teleportation cast time is accounted for in the calculation.");
                 ImGui.Dummy(new Vector2(0,20));
                 ImGui.TextUnformatted("I turned on the aetheryte name setting, why do some FATEs not have it?");
                 ImGui.TextUnformatted("Same as above, it won't show if flying is faster. This is also why the name will go away when you get close enough to the FATE.");

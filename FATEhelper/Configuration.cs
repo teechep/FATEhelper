@@ -20,6 +20,7 @@ public class Configuration : IPluginConfiguration
     public bool OpenMapWithFlag { get; set; } = false;
     public bool TeleportWithFlag { get; set; } = true;
     public bool ShowAetheryteName { get; set; } = false;
+    public bool ShowCompass { get; set; } = false;
 
     // The below exist just to make saving less cumbersome
     public void Save()

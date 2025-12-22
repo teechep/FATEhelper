@@ -37,6 +37,7 @@ internal class FateInfo(Configuration cfg)
     public int CollectCount { get; set; }
     public long TimeSortBy { get; set; }
     public int ProgressSortBy { get; set; }
+    public double Compass { get; set; }
     
     /*
      * This returns the proper icon ID if it is an NPC-started fate
@@ -145,6 +146,15 @@ internal unsafe class FateHelper
                     if (Config.SortBy == 2 && info.IsBonus)
                     {
                         info.ProgressSortBy += 200;
+                    }
+                    // set compass rotation angle
+                    if (Config.ShowCompass && Plugin.ObjectTable.LocalPlayer != null)
+                    {
+                        var angle = Plugin.ObjectTable.LocalPlayer.Rotation - Math.Atan2(
+                                        Plugin.ObjectTable.LocalPlayer.Position.X - info.Position.X,
+                                        Plugin.ObjectTable.LocalPlayer.Position.Z - info.Position.Z);
+                        // not sure why it is off by 45 degrees
+                        info.Compass = angle + (Math.PI / 4);
                     }
                 }
                 catch (Exception e)

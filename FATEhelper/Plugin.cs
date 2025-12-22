@@ -15,6 +15,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static ICommandManager CommandManager { get; private set; } = null!;
     [PluginService] internal static ITextureProvider TextureProvider { get; private set; } = null!;
     [PluginService] internal static IClientState ClientState { get; private set; } = null!;
+    [PluginService] internal static IObjectTable ObjectTable { get; private set; } = null!;
     [PluginService] internal static IDataManager DataManager { get; private set; } = null!;
     [PluginService] internal static IFateTable FateTable { get; private set; } = null!;
 
@@ -78,18 +79,18 @@ public sealed class Plugin : IDalamudPlugin
     // flag fate when clicking the name, and open map/teleport if desired
     internal void FateFlag(Vector3 location)
     {
-        if(ClientState.LocalPlayer == null)
+        if(ObjectTable.LocalPlayer == null)
             return;
-        var flag = new Flagging(this, location, ClientState.LocalPlayer.Position);
+        var flag = new Flagging(this, location, ObjectTable.LocalPlayer.Position);
         flag.FlagFate();
     }
     
     // show closest aetheryte next to fate name for controller users
     internal string ClosestAetheryte(Vector3 location)
     {
-        if(ClientState.LocalPlayer == null)
+        if(ObjectTable.LocalPlayer == null)
             return string.Empty;
-        var flag = new Flagging(this, location, ClientState.LocalPlayer.Position);
+        var flag = new Flagging(this, location, ObjectTable.LocalPlayer.Position);
         return flag.GetClosestName();
     }
 

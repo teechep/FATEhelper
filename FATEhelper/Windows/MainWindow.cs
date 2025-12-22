@@ -62,7 +62,7 @@ public class MainWindow : Window, IDisposable
     }
 
     // draw the icons slightly higher so they align with the text
-    private void DrawIcon(uint iconId,float scale = 1.4f)
+    private void DrawIcon(uint iconId)
     {
         var pos = ImGui.GetCursorPos();
         pos.Y -= fontSize*0.2f;
@@ -70,8 +70,17 @@ public class MainWindow : Window, IDisposable
         var icon = Plugin.TextureProvider.GetFromGameIcon(new GameIconLookup(iconId)).GetWrapOrDefault();
         if (icon != null)
         {
-            ImGui.Image(icon.Handle, new Vector2(fontSize * scale, fontSize * scale));
+            ImGui.Image(icon.Handle, new Vector2(fontSize * 1.4f, fontSize * 1.4f));
         }
+    }
+    
+    // draw absolute position icons for the compass and bonus markers
+    private void DrawAbsolute(uint iconId,Vector2 p1,Vector2 p2,Vector2 p3,Vector2 p4)
+    {
+        var drawList = ImGui.GetWindowDrawList();
+        var posIcon = Plugin.TextureProvider.GetFromGameIcon(new GameIconLookup(iconId)).GetWrapOrDefault();
+        if(posIcon != null)
+            drawList.AddImageQuad(posIcon.Handle,p1,p2,p3,p4);
     }
     
     // align timer and percent to the right
@@ -110,7 +119,8 @@ public class MainWindow : Window, IDisposable
                 ImGui.PushStyleVar(ImGuiStyleVar.CellPadding,new Vector2(4,10));
             else
                 ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(4, 5));
-            if (ImGui.BeginTable("fatetable", 4))
+            int columnCount = Configuration.ShowCompass ? 5 : 4;
+            if (ImGui.BeginTable("fatetable", columnCount))
             {
                 ImGui.TableSetupColumn("icon");
                 if (Configuration.ShowFateNames)
@@ -126,15 +136,30 @@ public class MainWindow : Window, IDisposable
                 {
                     var i = Info[it];
                     ImGui.TableNextColumn();
+                    if (Configuration.ShowCompass)
+                    {
+                        //space for the compass, addimagequad uses absolute positioning
+                        ImGui.TextUnformatted("    ");
+                        ImGui.SameLine();
+                        float scale = fontSize * 1.2f;
+                        var curpos = ImGui.GetCursorScreenPos();
+                        curpos.X -= scale / 2;
+                        curpos.Y += scale * 0.4f;
+                        var p1 = new Vector2((float)Math.Cos(i.Compass)*scale, (float)Math.Sin(i.Compass)*scale);
+                        var p2 = new Vector2((float)Math.Cos(i.Compass+Math.PI/2)*scale, (float)Math.Sin(i.Compass+Math.PI/2)*scale);
+                        var p3 = new Vector2((float)Math.Cos(i.Compass+Math.PI)*scale, (float)Math.Sin(i.Compass+Math.PI)*scale);
+                        var p4 = new Vector2((float)Math.Cos(i.Compass + 3 * Math.PI / 2)*scale, (float)Math.Sin(i.Compass + 3 * Math.PI / 2)*scale);
+                        DrawAbsolute(60443,curpos+p1,curpos+p2,curpos+p3,curpos+p4);
+                        ImGui.TableNextColumn();
+                    }
                     DrawIcon(i.IconId);
                     if (i.IsBonus)
                     {
-                        var pos = ImGui.GetCursorPos();
+                        var pos = ImGui.GetCursorScreenPos();
                         pos.X += (fontSize * 0.4f);
-                        pos.Y -= (fontSize * 1.7f);
-                        ImGui.SetCursorPos(pos);
-                        ImGui.SetItemAllowOverlap();
-                        DrawIcon(60934, 1.6f);
+                        pos.Y -= (fontSize * 1.9f);
+                        float scale = fontSize * 1.5f;
+                        DrawAbsolute(60934,pos+new Vector2(0,0),pos+new Vector2(scale,0),pos+new Vector2(scale,scale),pos+new Vector2(0,scale));
                     }
 
                     ImGui.TableNextColumn();
