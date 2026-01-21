@@ -173,8 +173,8 @@ public class MainWindow : Window, IDisposable
                             if (!string.IsNullOrEmpty(closestAetheryte))
                                 suffix += " (" + closestAetheryte + ")";
                         }
-
-                        if (ImGui.Selectable($"{i.Name}{suffix}"))
+                        var level = Configuration.ShowLevel ? "Lv. "+i.Level+" " : "";
+                        if (ImGui.Selectable($"{level}{i.Name}{suffix}"))
                         {
                             Plugin.FateFlag(i.Position);
                         }

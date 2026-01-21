@@ -8,7 +8,7 @@ public class Configuration : IPluginConfiguration
 {
     public int Version { get; set; } = 0;
     public int SortBy { get; set; } = 0;
-    public string[] SortOptions { get; set; } = {"Bonus first, then Time Remaining", "Time Remaining", "Bonus first, then Percent Completed", "Percent Completed"};
+    public string[] SortOptions { get; set; } = {"Bonus first, then Time Remaining", "Time Remaining", "Bonus first, then Percent Completed", "Percent Completed","Level, descending","Level, ascending"};
     public bool ShowObjectiveIcon { get; set; } = false;
     public bool ShowFateNames { get; set; } = true;
     public bool ShowCurrency { get; set; } = false;
@@ -21,6 +21,7 @@ public class Configuration : IPluginConfiguration
     public bool TeleportWithFlag { get; set; } = true;
     public bool ShowAetheryteName { get; set; } = false;
     public bool ShowCompass { get; set; } = false;
+    public bool ShowLevel { get; set; } = false;
 
     // The below exist just to make saving less cumbersome
     public void Save()

@@ -38,6 +38,7 @@ internal class FateInfo(Configuration cfg)
     public long TimeSortBy { get; set; }
     public int ProgressSortBy { get; set; }
     public double Compass { get; set; }
+    public int Level { get; set; }
     
     /*
      * This returns the proper icon ID if it is an NPC-started fate
@@ -128,6 +129,7 @@ internal unsafe class FateHelper
                     info.Position = fate.Struct->Location;
                     info.Progress = fate.Struct->Progress;
                     info.IsBonus = fate.Struct->IsBonus;
+                    info.Level = Convert.ToInt32(fate.Struct->Level);
                     info.IconId = info.GetProperIcon(fate.Struct->MapIconId,fate.ObjStruct->Flags,start);
                     // player turn in, only show the number if they haven't handed in enough items
                     if (fate.Struct->HandInCount >= 6)
@@ -180,6 +182,10 @@ internal unsafe class FateHelper
         List<FateInfo> sortlist;
         if (Config.SortBy == 2 || Config.SortBy == 3) 
             sortlist = fatelist.OrderByDescending(o => o.ProgressSortBy).ToList();
+        else if (Config.SortBy == 4)
+            sortlist = fatelist.OrderByDescending(o => o.Level).ToList();
+        else if (Config.SortBy == 5)
+            sortlist = fatelist.OrderBy(o => o.Level).ToList();
         else
             sortlist = fatelist.OrderBy(o => o.TimeSortBy).ToList();
         

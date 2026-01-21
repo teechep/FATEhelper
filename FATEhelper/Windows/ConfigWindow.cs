@@ -87,6 +87,12 @@ public class ConfigWindow : Window, IDisposable
                      Configuration.ShowFateNames = names;
                      Configuration.Save();
                  }
+                 var level = Configuration.ShowLevel;
+                 if (ImGui.Checkbox("Show FATE level", ref level))
+                 {
+                     Configuration.ShowLevel = level;
+                     Configuration.Save();
+                 }
                  var curr = Configuration.ShowCurrency;
                  if (ImGui.Checkbox("Show Grand Company seal / Bicolor Gemstone count", ref curr))
                  {
