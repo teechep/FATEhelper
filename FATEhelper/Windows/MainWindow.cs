@@ -169,14 +169,14 @@ public class MainWindow : Window, IDisposable
                         string suffix = "";
                         if (Configuration.ShowAetheryteName)
                         {
-                            var closestAetheryte = Plugin.ClosestAetheryte(i.Position);
+                            var closestAetheryte = Plugin.ClosestAetheryte(i.ID, i.Position);
                             if (!string.IsNullOrEmpty(closestAetheryte))
                                 suffix += " (" + closestAetheryte + ")";
                         }
                         var level = Configuration.ShowLevel ? "Lv. "+i.Level+" " : "";
                         if (ImGui.Selectable($"{level}{i.Name}{suffix}"))
                         {
-                            Plugin.FateFlag(i.Position);
+                            Plugin.FateFlag(i.ID, i.Position);
                         }
 
                         ImGui.TableNextColumn();
@@ -214,7 +214,7 @@ public class MainWindow : Window, IDisposable
                             ImGui.PushID($"button{it}");
                             if (ImGui.ImageButton(flagWrap.Handle, new Vector2(fontSize * 1.4f, fontSize * 1.4f)))
                             {
-                                Plugin.FateFlag(i.Position);
+                                Plugin.FateFlag(i.ID,i.Position);
                             }
 
                             ImGui.PopID();

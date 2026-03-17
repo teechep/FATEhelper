@@ -39,7 +39,8 @@ internal class FateInfo(Configuration cfg)
     public int ProgressSortBy { get; set; }
     public double Compass { get; set; }
     public int Level { get; set; }
-    
+    public uint ID { get; set; }
+
     /*
      * This returns the proper icon ID if it is an NPC-started fate
      * It uses the FateObjective Flags value since that was all I could find that worked
@@ -131,6 +132,7 @@ internal unsafe class FateHelper
                     info.IsBonus = fate.Struct->IsBonus;
                     info.Level = Convert.ToInt32(fate.Struct->Level);
                     info.IconId = info.GetProperIcon(fate.Struct->MapIconId,fate.ObjStruct->Flags,start);
+                    info.ID = id;
                     // player turn in, only show the number if they haven't handed in enough items
                     if (fate.Struct->HandInCount >= 6)
                         info.CollectCount = 9999;

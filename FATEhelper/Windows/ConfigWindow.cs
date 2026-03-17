@@ -114,7 +114,7 @@ public class ConfigWindow : Window, IDisposable
                  if(ImGui.IsItemHovered())
                      ImGui.SetTooltip("You will only teleport if it is faster than flying to the FATE from your current position.");
                  var aetheryte = Configuration.ShowAetheryteName;
-                 if (ImGui.Checkbox("Show closest aetheryte next to FATE name (for controller users)", ref aetheryte))
+                 if (ImGui.Checkbox("Show closest aetheryte next to FATE name (listed in Occult Crescent as 1-5)", ref aetheryte))
                  {
                      Configuration.ShowAetheryteName = aetheryte;
                      Configuration.Save();

@@ -20,6 +20,7 @@ public sealed class Plugin : IDalamudPlugin
     [PluginService] internal static IFateTable FateTable { get; private set; } = null!;
 
     private const string CommandMain = "/fatehelper";
+    private const string CommandMain2 = "/fh";
     private const string CommandConfig = "/fatehelperconfig";
     
     public Configuration Configuration { get; init; }
@@ -40,6 +41,10 @@ public sealed class Plugin : IDalamudPlugin
         WindowSystem.AddWindow(MainWindow);
         
         CommandManager.AddHandler(CommandMain, new CommandInfo(OnCommand)
+        {
+            HelpMessage = "Toggle FATE list."
+        });
+        CommandManager.AddHandler(CommandMain2, new CommandInfo(OnCommand)
         {
             HelpMessage = "Toggle FATE list."
         });
@@ -66,8 +71,8 @@ public sealed class Plugin : IDalamudPlugin
         MainWindow.Dispose();
 
         CommandManager.RemoveHandler(CommandMain);
+        CommandManager.RemoveHandler(CommandMain2);
         CommandManager.RemoveHandler(CommandConfig);
-        
     }
     
     // get and return fate info to update main window
@@ -77,26 +82,26 @@ public sealed class Plugin : IDalamudPlugin
     }
     
     // flag fate when clicking the name, and open map/teleport if desired
-    internal void FateFlag(Vector3 location)
+    internal void FateFlag(uint fateId,Vector3 location)
     {
         if(ObjectTable.LocalPlayer == null)
             return;
-        var flag = new Flagging(this, location, ObjectTable.LocalPlayer.Position);
+        var flag = new Flagging(this, fateId, location, ObjectTable.LocalPlayer.Position);
         flag.FlagFate();
     }
     
     // show closest aetheryte next to fate name for controller users
-    internal string ClosestAetheryte(Vector3 location)
+    internal string ClosestAetheryte(uint fateId,Vector3 location)
     {
         if(ObjectTable.LocalPlayer == null)
             return string.Empty;
-        var flag = new Flagging(this, location, ObjectTable.LocalPlayer.Position);
+        var flag = new Flagging(this,fateId, location, ObjectTable.LocalPlayer.Position);
         return flag.GetClosestName();
     }
 
     private void OnCommand(string command, string args)
     {
-        if(command == CommandMain)
+        if(command == CommandMain || command == CommandMain2)
             ToggleMainUI();
         else if(command == CommandConfig)
             ToggleConfigUI();
