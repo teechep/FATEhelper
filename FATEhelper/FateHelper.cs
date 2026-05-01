@@ -5,6 +5,7 @@ using System.Numerics;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
 using FFXIVClientStructs.FFXIV.Client.System.String;
+using FFXIVClientStructs.FFXIV.Client.UI;
 
 namespace FATEhelper;
 
@@ -67,12 +68,14 @@ internal unsafe class FateHelper
     public static string FateCurrency = "";
     public static byte GrandCompany;
     private int FateCount;
+    private bool ForlornActive;
 
     public FateHelper(Plugin plugin)
     {
         Plugin = plugin;
         Config = Plugin.Configuration;
         NotStarted = new Dictionary<ushort, long>();
+        ForlornActive = false;
     }
    
     public List<FateInfo> GetFateInfo()
@@ -178,6 +181,29 @@ internal unsafe class FateHelper
             if (Array.IndexOf(ids, id) == -1)
             {
                 NotStarted.Remove(id);
+            }
+        }
+        // alert when a forlorn spawns
+        if (Config.ForlornAlert)
+        {
+            var objs = Plugin.ObjectTable;
+            foreach (var obj in objs)
+            {
+                if (obj.BaseId == 7586 || obj.BaseId == 7587)
+                {
+                    if (!obj.IsDead)
+                    {
+                        if (!ForlornActive)
+                        {
+                            ForlornActive = true;
+                            UIGlobals.PlayChatSoundEffect(9);
+                        }
+                    }
+                    else
+                    {
+                        ForlornActive = false;
+                    }
+                }
             }
         }
         // sort list by configuration option

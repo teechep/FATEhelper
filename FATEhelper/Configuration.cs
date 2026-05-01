@@ -22,6 +22,7 @@ public class Configuration : IPluginConfiguration
     public bool ShowAetheryteName { get; set; } = false;
     public bool ShowCompass { get; set; } = false;
     public bool ShowLevel { get; set; } = false;
+    public bool ForlornAlert { get; set; } = false;
 
     // The below exist just to make saving less cumbersome
     public void Save()

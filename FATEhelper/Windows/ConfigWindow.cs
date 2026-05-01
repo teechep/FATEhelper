@@ -127,6 +127,12 @@ public class ConfigWindow : Window, IDisposable
                      Configuration.ShowCompass = compass;
                      Configuration.Save();
                  }
+                 var forlorn = Configuration.ForlornAlert;
+                 if (ImGui.Checkbox("Play a sound effect when a Forlorn spawns", ref forlorn))
+                 {
+                     Configuration.ForlornAlert = forlorn;
+                     Configuration.Save();
+                 }
                  ImGui.EndTabItem();
             }
             if (ImGui.BeginTabItem("FAQ"))
