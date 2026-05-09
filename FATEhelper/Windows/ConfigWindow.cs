@@ -127,6 +127,12 @@ public class ConfigWindow : Window, IDisposable
                      Configuration.ShowCompass = compass;
                      Configuration.Save();
                  }
+                 var distance = Configuration.ShowDistance;
+                 if (ImGui.Checkbox("Show distance of FATE from current position", ref distance))
+                 {
+                     Configuration.ShowDistance = distance;
+                     Configuration.Save();
+                 }
                  var forlorn = Configuration.ForlornAlert;
                  if (ImGui.Checkbox("Play a sound effect when a Forlorn spawns", ref forlorn))
                  {

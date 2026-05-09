@@ -12,6 +12,7 @@ public class Configuration : IPluginConfiguration
     public bool ShowObjectiveIcon { get; set; } = false;
     public bool ShowFateNames { get; set; } = true;
     public bool ShowCurrency { get; set; } = false;
+    public bool ShowDistance { get; set; } = false;
     public int FontSize { get; set; } = 1;
     public string[] FontOptions { get; set; } = { "Small", "Regular", "Large" };
     public bool LimitDisplay { get; set; } = false;
