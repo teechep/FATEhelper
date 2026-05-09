@@ -119,13 +119,19 @@ public class MainWindow : Window, IDisposable
                 ImGui.PushStyleVar(ImGuiStyleVar.CellPadding,new Vector2(4,10));
             else
                 ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(4, 5));
-            int columnCount = Configuration.ShowCompass ? 5 : 4;
+            int columnCount = Configuration.ShowCompass ? 6 : 5;
             if (ImGui.BeginTable("fatetable", columnCount))
             {
+                if (Configuration.ShowCompass)
+                    ImGui.TableSetupColumn("compass");
                 ImGui.TableSetupColumn("icon");
                 if (Configuration.ShowFateNames)
                     ImGui.TableSetupColumn("name");
-                ImGui.TableSetupColumn("time");
+                ImGui.TableSetupColumn(
+                    "distance",
+                    ImGuiTableColumnFlags.WidthFixed, Configuration.ShowDistance ? 30 : 0
+                );
+                ImGui.TableSetupColumn("time", ImGuiTableColumnFlags.WidthFixed, 40);
                 ImGui.TableSetupColumn("progress");
                 if (!Configuration.ShowFateNames)
                     ImGui.TableSetupColumn("flag");
@@ -181,6 +187,11 @@ public class MainWindow : Window, IDisposable
 
                         ImGui.TableNextColumn();
                     }
+
+                    // distance from player
+                    if (Configuration.ShowDistance && i.Distance > 40)
+                        ImGui.TextUnformatted(i.Distance.ToString("0") + 'y');
+                    ImGui.TableNextColumn();
 
                     // time remaining
                     AlignRight(GetTimer(i.TimeRemaining, i.NotStarted), "timer");
