@@ -220,16 +220,15 @@ internal unsafe class FateHelper
             }
         }
         // sort list by configuration option
-        List<FateInfo> sortlist;
-        if (Config.SortBy == 2 || Config.SortBy == 3) 
-            sortlist = fatelist.OrderByDescending(o => o.ProgressSortBy).ToList();
-        else if (Config.SortBy == 4)
-            sortlist = fatelist.OrderByDescending(o => o.Level).ToList();
-        else if (Config.SortBy == 5)
-            sortlist = fatelist.OrderBy(o => o.Level).ToList();
-        else
-            sortlist = fatelist.OrderBy(o => o.TimeSortBy).ToList();
-        
+        List<FateInfo> sortlist = Config.SortBy switch
+        {
+            2 or 3 => fatelist.OrderByDescending(o => o.ProgressSortBy).ToList(),
+            4 => fatelist.OrderByDescending(o => o.Level).ToList(),
+            5 => fatelist.OrderBy(o => o.Level).ToList(),
+            6 => fatelist.OrderBy(o => o.Distance).ToList(),
+            _ => fatelist.OrderBy(o => o.TimeSortBy).ToList()
+        };
+
         return sortlist;
     }
 }

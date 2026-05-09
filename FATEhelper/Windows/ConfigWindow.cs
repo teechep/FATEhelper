@@ -61,9 +61,10 @@ public class ConfigWindow : Window, IDisposable
                  ImGui.PopID();
                  ImGui.Dummy(new Vector2(0, 15));
                  int sort = Configuration.SortBy;
+                 string[] sortOptions = {"Bonus first, then Time Remaining", "Time Remaining", "Bonus first, then Percent Completed", "Percent Completed","Level, descending","Level, ascending","Distance"};
                  ImGui.TextUnformatted("Sort FATEs by:");
                  ImGui.PushID("sortby");
-                 if (ImGui.Combo("", ref sort, Configuration.SortOptions, Configuration.SortOptions.Length))
+                 if (ImGui.Combo("", ref sort, sortOptions, sortOptions.Length))
                  {
     
                      Configuration.SortBy = sort;
