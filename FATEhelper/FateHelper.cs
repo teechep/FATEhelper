@@ -32,6 +32,7 @@ internal class FateInfo(Configuration cfg)
     public long TimeRemaining { get; set; }
     public bool NotStarted { get; set; }
     public Vector3 Position { get; set; }
+    public float Distance { get; set; }
     public byte Progress { get; set; }
     public uint IconId { get; set; }
     public bool IsBonus { get; set; }
@@ -154,14 +155,26 @@ internal unsafe class FateHelper
                     {
                         info.ProgressSortBy += 200;
                     }
-                    // set compass rotation angle
-                    if (Config.ShowCompass && Plugin.ObjectTable.LocalPlayer != null)
+
+                    if (Plugin.ObjectTable.LocalPlayer != null)
                     {
-                        var angle = Plugin.ObjectTable.LocalPlayer.Rotation - Math.Atan2(
-                                        Plugin.ObjectTable.LocalPlayer.Position.X - info.Position.X,
-                                        Plugin.ObjectTable.LocalPlayer.Position.Z - info.Position.Z);
-                        // not sure why it is off by 45 degrees
-                        info.Compass = angle + (Math.PI / 4);
+                        // set distance from player
+                        if (Config.ShowDistance || Config.SortBy == 6)
+                            info.Distance = Vector2.Distance(
+                                new Vector2(Plugin.ObjectTable.LocalPlayer.Position.X,
+                                            Plugin.ObjectTable.LocalPlayer.Position.Z),
+                                new Vector2(info.Position.X, info.Position.Z)
+                            );
+
+                        // set compass rotation angle
+                        if (Config.ShowCompass)
+                        {
+                            var angle = Plugin.ObjectTable.LocalPlayer.Rotation - Math.Atan2(
+                                            Plugin.ObjectTable.LocalPlayer.Position.X - info.Position.X,
+                                            Plugin.ObjectTable.LocalPlayer.Position.Z - info.Position.Z);
+                            // not sure why it is off by 45 degrees
+                            info.Compass = angle + (Math.PI / 4);
+                        }
                     }
                 }
                 catch (Exception e)
@@ -207,16 +220,15 @@ internal unsafe class FateHelper
             }
         }
         // sort list by configuration option
-        List<FateInfo> sortlist;
-        if (Config.SortBy == 2 || Config.SortBy == 3) 
-            sortlist = fatelist.OrderByDescending(o => o.ProgressSortBy).ToList();
-        else if (Config.SortBy == 4)
-            sortlist = fatelist.OrderByDescending(o => o.Level).ToList();
-        else if (Config.SortBy == 5)
-            sortlist = fatelist.OrderBy(o => o.Level).ToList();
-        else
-            sortlist = fatelist.OrderBy(o => o.TimeSortBy).ToList();
-        
+        List<FateInfo> sortlist = Config.SortBy switch
+        {
+            2 or 3 => fatelist.OrderByDescending(o => o.ProgressSortBy).ToList(),
+            4 => fatelist.OrderByDescending(o => o.Level).ToList(),
+            5 => fatelist.OrderBy(o => o.Level).ToList(),
+            6 => fatelist.OrderBy(o => o.Distance).ToList(),
+            _ => fatelist.OrderBy(o => o.TimeSortBy).ToList()
+        };
+
         return sortlist;
     }
 }

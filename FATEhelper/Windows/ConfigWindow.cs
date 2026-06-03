@@ -61,9 +61,10 @@ public class ConfigWindow : Window, IDisposable
                  ImGui.PopID();
                  ImGui.Dummy(new Vector2(0, 15));
                  int sort = Configuration.SortBy;
+                 string[] sortOptions = {"Bonus first, then Time Remaining", "Time Remaining", "Bonus first, then Percent Completed", "Percent Completed","Level, descending","Level, ascending","Distance"};
                  ImGui.TextUnformatted("Sort FATEs by:");
                  ImGui.PushID("sortby");
-                 if (ImGui.Combo("", ref sort, Configuration.SortOptions, Configuration.SortOptions.Length))
+                 if (ImGui.Combo("", ref sort, sortOptions, sortOptions.Length))
                  {
     
                      Configuration.SortBy = sort;
@@ -125,6 +126,12 @@ public class ConfigWindow : Window, IDisposable
                  if (ImGui.Checkbox("Show direction of FATE from current position", ref compass))
                  {
                      Configuration.ShowCompass = compass;
+                     Configuration.Save();
+                 }
+                 var distance = Configuration.ShowDistance;
+                 if (ImGui.Checkbox("Show distance of FATE from current position", ref distance))
+                 {
+                     Configuration.ShowDistance = distance;
                      Configuration.Save();
                  }
                  var forlorn = Configuration.ForlornAlert;
