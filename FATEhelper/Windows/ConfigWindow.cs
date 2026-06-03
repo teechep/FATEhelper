@@ -66,11 +66,8 @@ public class ConfigWindow : Window, IDisposable
                  ImGui.PushID("sortby");
                  if (ImGui.Combo("", ref sort, sortOptions, sortOptions.Length))
                  {
-    
                      Configuration.SortBy = sort;
-     
                      Configuration.Save();
-                     
                  }
                  ImGui.PopID();
                  ImGui.Dummy(new Vector2(0, 15));

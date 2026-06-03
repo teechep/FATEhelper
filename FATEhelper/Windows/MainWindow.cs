@@ -15,6 +15,7 @@ public class MainWindow : Window, IDisposable
     private float fontSize;
     private float timerWidth;
     private float progressWidth;
+    private float distanceWidth;
     
     
     public MainWindow(Plugin plugin)
@@ -32,11 +33,12 @@ public class MainWindow : Window, IDisposable
 
     public void Dispose() { }
 
-    //get the max width of text for the timer and percent columns, for right alignment
+    //get the max width of text for the distance, timer and percent columns, for right alignment
     private void GetWidths(List<FateInfo> fates)
     {
         timerWidth = 0;
         progressWidth = 0;
+        distanceWidth = 0;
         foreach (var fate in fates)
         {
             var timer = GetTimer(fate.TimeRemaining, fate.NotStarted);
@@ -49,6 +51,11 @@ public class MainWindow : Window, IDisposable
             if (width > progressWidth)
             {
                 progressWidth = width;
+            }
+            width = ImGui.CalcTextSize(fate.Distance.ToString("0")+"y").X;
+            if (width > distanceWidth)
+            {
+                distanceWidth = width;
             }
         }
     }
@@ -83,7 +90,7 @@ public class MainWindow : Window, IDisposable
             drawList.AddImageQuad(posIcon.Handle,p1,p2,p3,p4);
     }
     
-    // align timer and percent to the right
+    // align distance, timer and percent to the right
     private void AlignRight(ImU8String content,string contentType)
     {
         var posX = ImGui.GetCursorPosX();
@@ -95,6 +102,10 @@ public class MainWindow : Window, IDisposable
         else if (contentType == "progress")
         {
             offset = progressWidth - ImGui.CalcTextSize(content).X;
+        }
+        else if (contentType == "distance")
+        {
+            offset = distanceWidth - ImGui.CalcTextSize(content).X;
         }
         ImGui.SetCursorPosX(posX+offset);
         ImGui.TextUnformatted(content);
@@ -119,7 +130,11 @@ public class MainWindow : Window, IDisposable
                 ImGui.PushStyleVar(ImGuiStyleVar.CellPadding,new Vector2(4,10));
             else
                 ImGui.PushStyleVar(ImGuiStyleVar.CellPadding, new Vector2(4, 5));
-            int columnCount = Configuration.ShowCompass ? 6 : 5;
+            int columnCount = 4;
+            if (Configuration.ShowCompass)
+                columnCount++;
+            if (Configuration.ShowDistance)
+                columnCount++;
             if (ImGui.BeginTable("fatetable", columnCount))
             {
                 if (Configuration.ShowCompass)
@@ -127,11 +142,9 @@ public class MainWindow : Window, IDisposable
                 ImGui.TableSetupColumn("icon");
                 if (Configuration.ShowFateNames)
                     ImGui.TableSetupColumn("name");
-                ImGui.TableSetupColumn(
-                    "distance",
-                    ImGuiTableColumnFlags.WidthFixed, Configuration.ShowDistance ? 30 : 0
-                );
-                ImGui.TableSetupColumn("time", ImGuiTableColumnFlags.WidthFixed, 40);
+                if (Configuration.ShowDistance)
+                    ImGui.TableSetupColumn("distance");
+                ImGui.TableSetupColumn("time");
                 ImGui.TableSetupColumn("progress");
                 if (!Configuration.ShowFateNames)
                     ImGui.TableSetupColumn("flag");
@@ -144,13 +157,12 @@ public class MainWindow : Window, IDisposable
                     ImGui.TableNextColumn();
                     if (Configuration.ShowCompass)
                     {
-                        //space for the compass, addimagequad uses absolute positioning
-                        ImGui.TextUnformatted("    ");
-                        ImGui.SameLine();
                         float scale = fontSize * 1.2f;
+                        //space for the compass, addimagequad uses absolute positioning
+                        ImGui.Dummy(new Vector2(scale * 0.8f,0));
                         var curpos = ImGui.GetCursorScreenPos();
-                        curpos.X -= scale / 2;
-                        curpos.Y += scale * 0.4f;
+                        curpos.X += scale / 2;
+                        curpos.Y += scale * 0.2f;
                         var p1 = new Vector2((float)Math.Cos(i.Compass)*scale, (float)Math.Sin(i.Compass)*scale);
                         var p2 = new Vector2((float)Math.Cos(i.Compass+Math.PI/2)*scale, (float)Math.Sin(i.Compass+Math.PI/2)*scale);
                         var p3 = new Vector2((float)Math.Cos(i.Compass+Math.PI)*scale, (float)Math.Sin(i.Compass+Math.PI)*scale);
@@ -189,9 +201,12 @@ public class MainWindow : Window, IDisposable
                     }
 
                     // distance from player
-                    if (Configuration.ShowDistance && i.Distance > 40)
-                        ImGui.TextUnformatted(i.Distance.ToString("0") + 'y');
-                    ImGui.TableNextColumn();
+                    if (Configuration.ShowDistance)
+                    {
+                        if (i.Distance > 40)
+                            AlignRight(i.Distance.ToString("0") + 'y',"distance");
+                        ImGui.TableNextColumn();
+                    }
 
                     // time remaining
                     AlignRight(GetTimer(i.TimeRemaining, i.NotStarted), "timer");
