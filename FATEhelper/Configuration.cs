@@ -23,6 +23,8 @@ public class Configuration : IPluginConfiguration
     public bool ShowCompass { get; set; } = false;
     public bool ShowLevel { get; set; } = false;
     public bool ForlornAlert { get; set; } = false;
+    public bool NoFateAlert = false;
+    public int NoFateTimer = 999999;
 
     // The below exist just to make saving less cumbersome
     public void Save()

@@ -71,6 +71,24 @@ public class ConfigWindow : Window, IDisposable
                  }
                  ImGui.PopID();
                  ImGui.Dummy(new Vector2(0, 15));
+                 var noFate = Configuration.NoFateAlert;
+                 var noTimer = Configuration.NoFateTimer;
+                 string[] noFateOptions = { "15 seconds", "30 seconds", "45 seconds", "1 minute", "2 minutes", "3 minutes" };
+                 if (ImGui.Checkbox("Play alert sound for new FATEs after:", ref noFate))
+                 {
+                     Configuration.NoFateAlert = noFate;
+                     Configuration.Save();
+                 }
+                 if(ImGui.IsItemHovered())
+                     ImGui.SetTooltip("This will play when there have been no FATEs since the time chosen, and then a new one spawns.");
+                 ImGui.PushID("nofate");
+                 if (ImGui.Combo("", ref noTimer, noFateOptions, noFateOptions.Length))
+                 {
+                     Configuration.NoFateTimer = noTimer;
+                     Configuration.Save();
+                 }
+                 ImGui.PopID();
+                 ImGui.Dummy(new Vector2(0, 15));
                  var obj = Configuration.ShowObjectiveIcon;
                  if (ImGui.Checkbox("Show objective icons for NPC-started FATEs", ref obj))
                  {
@@ -112,7 +130,7 @@ public class ConfigWindow : Window, IDisposable
                  if(ImGui.IsItemHovered())
                      ImGui.SetTooltip("You will only teleport if it is faster than flying to the FATE from your current position.");
                  var aetheryte = Configuration.ShowAetheryteName;
-                 if (ImGui.Checkbox("Show closest aetheryte next to FATE name (listed in Occult Crescent as 1-5)", ref aetheryte))
+                 if (ImGui.Checkbox("Show closest aetheryte next to FATE name (listed in Occult Crescent as 1-6)", ref aetheryte))
                  {
                      Configuration.ShowAetheryteName = aetheryte;
                      Configuration.Save();

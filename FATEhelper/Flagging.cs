@@ -31,10 +31,35 @@ internal unsafe class Flagging
         fateId = FateId;
         fateLocation = FateLocation;
         playerLocation = PlayerLocation;
-        if (Plugin.ClientState.TerritoryType == 1252)
-            GetClosestOccult();
+        if (Plugin.ClientState.TerritoryType == 1346)
+        {
+            List<Vector3> NorthHorn = new List<Vector3>
+            {
+                new Vector3(879f, 0, 879f),
+                new Vector3(451f, 0, 528f),
+                new Vector3(357f, 0, -554f),
+                new Vector3(-547f, 0, 593f),
+                new Vector3(-388f, 0, -440f),
+                new Vector3(-13f, 0, -40f)
+            };
+            GetClosestOccult(NorthHorn);
+        }
+        else if (Plugin.ClientState.TerritoryType == 1252)
+        {
+            List<Vector3> SouthHorn = new List<Vector3>
+            {
+                new Vector3(830.69f, 0, -695.86f),
+                new Vector3(-171.34f, 0, -612.4f),
+                new Vector3(-357.95f, 0, -120.94f),
+                new Vector3(306.98f, 0, 305.65f),
+                new Vector3(-384.15f, 0, 281.54f)
+            };
+            GetClosestOccult(SouthHorn);
+        }
         else
+        {
             GetClosestAetheryte();
+        }
     }
     
     private static float SquaredDistance(float x1, float y1, float x2, float y2)
@@ -98,24 +123,21 @@ internal unsafe class Flagging
         return closestAetheryte;
     }
 
-    // don't know if there's a way to get the list of aetheryte shards, please lmk if there is
-    public void GetClosestOccult()
+    public void GetClosestOccult(List<Vector3> Shards)
     {
-        List<Vector3> Shards = new List<Vector3>
-        {
-            new Vector3((float)830.69, 0, (float)-695.86),
-            new Vector3((float)-171.34,0,(float)-612.4),
-            new Vector3((float)-357.95,0,(float)-120.94),
-            new Vector3((float)306.98,0,(float)305.65),
-            new Vector3((float)-384.15,0,(float)281.54)
-        };
         int shard = 1;
         string closest = "";
         float closestDistance = SquaredDistance(playerLocation.X, playerLocation.Z, fateLocation.X, fateLocation.Z);
-        // manual correction for Brain Drain
+        // manual corrections
+        // Brain Drain south horn
         if (fateId == 1967)
         {
             closestAetheryte = "3";
+        }
+        // Eye to Eye north horn
+        else if (fateId == 2075)
+        {
+            closestAetheryte = "2";
         }
         else{
             foreach (var s in Shards)

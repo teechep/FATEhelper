@@ -70,6 +70,7 @@ internal unsafe class FateHelper
     public static byte GrandCompany;
     private int FateCount;
     private bool ForlornActive;
+    private DateTime TimeSinceLastFATE;
 
     public FateHelper(Plugin plugin)
     {
@@ -77,12 +78,22 @@ internal unsafe class FateHelper
         Config = Plugin.Configuration;
         NotStarted = new Dictionary<ushort, long>();
         ForlornActive = false;
+        TimeSinceLastFATE = DateTime.Now;
     }
    
     public List<FateInfo> GetFateInfo()
     {
         // update count for every refresh
         FateCount = Plugin.FateTable.Length;
+        // alert if a new FATE spawns
+        if (Config.NoFateAlert && FateCount > 0)
+        {
+            int seconds = Config.NoFateTimer > 2 ? (Config.NoFateTimer - 2) * -60 : (Config.NoFateTimer + 1) * -15;
+            if (DateTime.Now.AddSeconds(seconds) >= TimeSinceLastFATE)
+            {
+                UIGlobals.PlayChatSoundEffect(6);
+            }
+        }
         if (Plugin.Configuration.ShowCurrency)
         {
             var Inventory = InventoryManager.Instance();
@@ -112,6 +123,7 @@ internal unsafe class FateHelper
             {
                 try
                 {
+                    TimeSinceLastFATE = DateTime.Now;
                     var fate = new Fate(addr);
                     var now = DateTimeOffset.Now.ToUnixTimeSeconds();
                     var id = fate.Struct->FateId;
