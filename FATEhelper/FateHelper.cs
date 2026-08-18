@@ -2,9 +2,10 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Numerics;
+using System.Text;
+using System.Text.RegularExpressions;
 using FFXIVClientStructs.FFXIV.Client.Game;
 using FFXIVClientStructs.FFXIV.Client.Game.UI;
-using FFXIVClientStructs.FFXIV.Client.System.String;
 using FFXIVClientStructs.FFXIV.Client.UI;
 
 namespace FATEhelper;
@@ -28,7 +29,7 @@ internal unsafe class Fate
 
 internal class FateInfo(Configuration cfg)
 {
-    public Utf8String Name { get; set; }
+    public string? Name { get; set; }
     public long TimeRemaining { get; set; }
     public bool NotStarted { get; set; }
     public Vector3 Position { get; set; }
@@ -141,8 +142,11 @@ internal unsafe class FateHelper
                         info.TimeRemaining = start + fate.Struct->Duration - now;
                         NotStarted.Remove(id);
                     }
-
-                    info.Name = fate.Struct->Name;
+                    // replace control characters in fate name
+                    string replace = Encoding.UTF8.GetString(fate.Struct->Name);
+                    string rep1 = Regex.Replace(replace,@"[\u0000-\u001B]",string.Empty);
+                    string rep2 = Regex.Replace(rep1,@"[\u001C-\u001F]"," ");
+                    info.Name = rep2;
                     info.Position = fate.Struct->Location;
                     info.Progress = fate.Struct->Progress;
                     info.IsBonus = fate.Struct->IsBonus;
@@ -191,12 +195,12 @@ internal unsafe class FateHelper
                 }
                 catch (Exception e)
                 {
-                    info.Name = new Utf8String(e.Message);
+                    info.Name = e.Message;
                 }
             }
             else
             {
-                info.Name = new Utf8String("error accessing fate address");
+                info.Name = "error accessing fate address";
             }
             fatelist.Add(info);
         }
